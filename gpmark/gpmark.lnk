@@ -1,4 +1,3 @@
 title=GPmark
+exec=/mnt/apps/gpmark/gpmark
 description=Graphics benchmark
-exec=/home/retrofw/apps/gpmark/gpmark.dge
-clock=600

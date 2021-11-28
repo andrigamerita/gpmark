@@ -1,20 +1,21 @@
-#
-# GPMark for the RetroFW
-#
-# by pingflood; 2019
-#
+# GPMark for Miyoo by octospacc
+# originally for RetroFW by pingflood; 2019
 
-TARGET = gpmark/gpmark.dge
+TARGET = gpmark/gpmark
 
-# Project: GPmarkGP2X
-# Makefile created by Dev-C++ 4.9.9.2
-
-CC = $(CROSS_COMPILE)gcc
-CXX = $(CROSS_COMPILE)g++
-STRIP = $(CROSS_COMPILE)strip
-
-SYSROOT     := $(shell $(CC) --print-sysroot)
-SDL_CONFIG = $(SYSROOT)/usr/bin/sdl-config
+ifdef HOST
+	SYSROOT := $(shell $(CC) --print-sysroot)
+	SDL_CONFIG = $(SYSROOT)/usr/bin/sdl-config
+	TARGET = gpmark/gpmark.exe
+else
+	CHAINPREFIX=/opt/miyoo
+	CROSS_COMPILE=$(CHAINPREFIX)/bin/arm-miyoo-linux-uclibcgnueabi-
+	CC = $(CROSS_COMPILE)gcc
+	CXX = $(CROSS_COMPILE)g++
+	STRIP = $(CROSS_COMPILE)strip
+	SYSROOT := $(shell $(CC) --print-sysroot)
+	SDL_CONFIG = $(SYSROOT)/usr/bin/sdl-config
+endif
 
 OBJ  = src/objs/menu.o src/objs/bitfonts.o src/objs/blitting.o src/objs/bunny3d.o src/objs/engine3d.o src/objs/env1.o src/objs/generate3d.o src/objs/main.o src/objs/plasma.o src/objs/radialblur.o src/objs/render3d.o src/objs/rotozoomer.o src/objs/sky1.o
 LINKOBJ  = $(OBJ)
@@ -75,30 +76,5 @@ src/objs/rotozoomer.o: src/rotozoomer.cpp
 src/objs/sky1.o: src/sky1.cpp
 	$(CXX) -c src/sky1.cpp -o src/objs/sky1.o $(CXXFLAGS)
 
-ipk: all
-	@rm -rf /tmp/.gpmark-ipk/ && mkdir -p /tmp/.gpmark-ipk/root/home/retrofw/apps/gpmark /tmp/.gpmark-ipk/root/home/retrofw/apps/gmenu2x/sections/applications
-	@cp -r \
-	$(TARGET) \
-	gpmark/gpmark.png \
-	gpmark/bunnybig.3do \
-	gpmark/draculf.bin \
-	/tmp/.gpmark-ipk/root/home/retrofw/apps/gpmark
-	@cp gpmark/gpmark.lnk /tmp/.gpmark-ipk/root/home/retrofw/apps/gmenu2x/sections/applications
-	@sed "s/^Version:.*/Version: $$(date +%Y%m%d)/" gpmark/control > /tmp/.gpmark-ipk/control
-	@tar --owner=0 --group=0 -czvf /tmp/.gpmark-ipk/control.tar.gz -C /tmp/.gpmark-ipk/ control
-	@tar --owner=0 --group=0 -czvf /tmp/.gpmark-ipk/data.tar.gz -C /tmp/.gpmark-ipk/root/ .
-	@echo 2.0 > /tmp/.gpmark-ipk/debian-binary
-	@ar r gpmark/gpmark.ipk /tmp/.gpmark-ipk/control.tar.gz /tmp/.gpmark-ipk/data.tar.gz /tmp/.gpmark-ipk/debian-binary
-
-opk: all
-	@mksquashfs \
-	gpmark/default.retrofw.desktop \
-	gpmark/gpmark.dge \
-	gpmark/gpmark.png \
-	gpmark/bunnybig.3do \
-	gpmark/draculf.bin \
-	gpmark/gpmark.opk \
-	-all-root -noappend -no-exports -no-xattrs
-
 clean: clean-custom
-	${RM} $(OBJ) $(TARGET) gpmark/gpmark.ipk
+	${RM} $(OBJ) $(TARGET) $(TARGET).exe
